@@ -30,6 +30,9 @@ public class FlowablespringbootApplication {
         SpringApplication.run(FlowablespringbootApplication.class, args);
     }
 
+    @Autowired
+    MyEventListener myEventListener;
+
 
     @Bean
     public CommandLineRunner init(final RepositoryService repositoryService,
@@ -39,6 +42,9 @@ public class FlowablespringbootApplication {
         return new CommandLineRunner() {
             @Override
             public void run(String... strings) throws Exception {
+
+                //runtimeService.addEventListener(myEventListener);
+
                 System.out.println("Number of process definitions : "
                         + repositoryService.createProcessDefinitionQuery().count());
                 System.out.println("Number of tasks : " + taskService.createTaskQuery().count());
