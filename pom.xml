@@ -30,13 +30,14 @@
             <scope>test</scope>
         </dependency>
 
+
         <!-- flowable-->
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter</artifactId>
             <version>6.6.0</version>
         </dependency>
-        <!-- flowable REST API-->
+        <!-- flowable REST API: /process-api/-->
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter-rest</artifactId>
