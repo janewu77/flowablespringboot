@@ -36,6 +36,7 @@ public class FlowablespringbootApplication {
 
     @Bean
     public CommandLineRunner init(final RepositoryService repositoryService,
+                                  final HistoryService historyService,
                                   final RuntimeService runtimeService,
                                   final TaskService taskService) {
 
@@ -45,13 +46,27 @@ public class FlowablespringbootApplication {
 
                 //runtimeService.addEventListener(myEventListener);
 
+
                 System.out.println("Number of process definitions : "
                         + repositoryService.createProcessDefinitionQuery().count());
-                System.out.println("Number of tasks : " + taskService.createTaskQuery().count());
-                runtimeService.startProcessInstanceByKey("oneTaskProcess");
+
+//                System.out.println("Number of tasks : " + taskService.createTaskQuery().count());
+                //repositoryService.createProcessDefinitionQuery().processDefinitionKey("oneTaskProcess");
+
                 System.out.println("Number of tasks after process start: "
                         + taskService.createTaskQuery().count());
-                doDemoFlowableExpression();
+
+                //doDemoFlowableExpression();
+
+                //demo：请假流程
+//                doDeploy();
+//                getProcessDef();
+
+//                doAskLeaveByEmployee();
+//                doManagerJob();
+
+//                showHis();
+            }
 
             void doDemoFlowableExpression(){
                 //测试 flowable:expression="#{printer.printMessage()}"
@@ -59,8 +74,101 @@ public class FlowablespringbootApplication {
             }
 
 
+            //查看历史记录
+            void showHis(){
+
+                List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery().list();
+//                HistoryService historyService = processEngine.getHistoryService();
+                for(ProcessInstance  processInstance:processInstances){
+
+                    System.out.println(processInstance.getName()+":");
+
+                    List<HistoricActivityInstance> activities =
+                            historyService.createHistoricActivityInstanceQuery()
+                                    .processInstanceId(processInstance.getId())
+                                    .finished()
+                                    .orderByHistoricActivityInstanceEndTime().asc()
+                                    .list();
+
+                    for (HistoricActivityInstance activity : activities) {
+                        System.out.println("  "+activity.getActivityId() + " took "
+                                + activity.getDurationInMillis() + " milliseconds");
+                    }
+                }
+            }
+
+            //demo:发起请假流程
+            void doAskLeaveByEmployee(){
+                Scanner scanner= new Scanner(System.in);
+
+                System.out.println("Who are you?");
+                String employee = scanner.nextLine();
+
+                System.out.println("How many holidays do you want to request?");
+                Integer nrOfHolidays = Integer.valueOf(scanner.nextLine());
+
+                System.out.println("Why do you need them?");
+                String description = scanner.nextLine();
+
+//                RuntimeService runtimeService = processEngine.getRuntimeService();
+
+                Map<String, Object> variables = new HashMap<String, Object>();
+                variables.put("employee", employee);
+                variables.put("nrOfHolidays", nrOfHolidays);
+                variables.put("description", description);
+                ProcessInstance processInstance =
+                        runtimeService.startProcessInstanceByKey("holidayRequest", variables);
 
             }
+
+            //demo:执行任务
+            void doManagerJob(){
+                List<Task> tasks = queryManagerTasks();
+
+                Scanner scanner= new Scanner(System.in);
+                System.out.println("Which task would you like to complete?");
+                int taskIndex = Integer.valueOf(scanner.nextLine());
+
+                Task task = tasks.get(taskIndex - 1);
+                Map<String, Object> processVariables = taskService.getVariables(task.getId());
+                System.out.println(processVariables.get("employee") + " wants " +
+                        processVariables.get("nrOfHolidays") + " of holidays. Do you approve this?(y/n)");
+
+                boolean approved = scanner.nextLine().toLowerCase().equals("y");
+                Map variables = new HashMap<String, Object>();
+                variables.put("approved", approved);
+                taskService.complete(task.getId(), variables);
+            }
+
+            //查询某个group的任务
+            List<Task> queryManagerTasks(){
+                //TaskService taskService = processEngine.getTaskService();
+                List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("managers").list();
+                System.out.println("You(managers) have " + tasks.size() + " tasks:");
+                for (int i=0; i<tasks.size(); i++) {
+                    System.out.println((i+1) + ") " + tasks.get(i).getName());
+                }
+                return tasks;
+            }
+
+            //发布请假流程
+            void doDeploy(){
+
+                //RepositoryService repositoryService = processEngine.getRepositoryService();
+
+                Deployment deployment = repositoryService.createDeployment()
+                        .addClasspathResource("pre-processes/holiday-request.bpmn20.xml")
+                        .deploy();
+
+                ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                        .deploymentId(deployment.getId())
+                        .singleResult();
+                System.out.println("deploymentID  : " + deployment.getId());
+                System.out.println("Found process definition : " + processDefinition.getName());
+
+            }
+
         };
+
     }
 }
