@@ -1,12 +1,26 @@
 package com.j.demo.flowablespringboot;
 
+
+import com.j.demo.flowablespringboot.flowable.demo.MyEventListener;
+import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.task.api.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 //@SpringBootApplication(proxyBeanMethods = false)
 @SpringBootApplication
@@ -31,6 +45,15 @@ public class FlowablespringbootApplication {
                 runtimeService.startProcessInstanceByKey("oneTaskProcess");
                 System.out.println("Number of tasks after process start: "
                         + taskService.createTaskQuery().count());
+                doDemoFlowableExpression();
+
+            void doDemoFlowableExpression(){
+                //测试 flowable:expression="#{printer.printMessage()}"
+                runtimeService.startProcessInstanceByKey("helloProcess");
+            }
+
+
+
             }
         };
     }
