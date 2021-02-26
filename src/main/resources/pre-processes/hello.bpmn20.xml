@@ -10,13 +10,13 @@
              expressionLanguage="http://www.w3.org/1999/XPath"
              targetNamespace="http://www.flowable.org/processdef">
 
-    <process id="helloProcess">
+    <process id="helloProcess" name="测试flowable:expression helloService.sayHello()">
 
         <startEvent id="start" />
-        <sequenceFlow id="flow1" sourceRef="start" targetRef="print" />
+        <sequenceFlow id="flow1" sourceRef="start" targetRef="sayHello" />
 
-        <serviceTask id="print" flowable:expression="#{printer.printMessage()}" />
-        <sequenceFlow id="flow2" sourceRef="print" targetRef="end" />
+        <serviceTask id="sayHello" flowable:expression="#{helloService.sayHello(name)}" />
+        <sequenceFlow id="flow2" sourceRef="sayHello" targetRef="end" />
 
         <endEvent id="end" />
 
