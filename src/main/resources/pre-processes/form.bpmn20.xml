@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:flowable="http://flowable.org/bpmn"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef">
+
+    <process id="formProcess" name="测试form test">
+
+        <startEvent id="start">
+<!--            <extensionElements>-->
+<!--                <flowable:formProperty id="room0" required="true"/>-->
+<!--                <flowable:formProperty id="duration0" type="long"/>-->
+<!--                <flowable:formProperty id="speaker0" variable="SpeakerName" writable="false" />-->
+<!--            </extensionElements>-->
+        </startEvent>
+
+
+        <sequenceFlow id="flow1" sourceRef="start" targetRef="taskform1" />
+
+        <userTask id="taskform1" name ="usertask1">
+            <extensionElements>
+                <flowable:formProperty id="room1" />
+                <flowable:formProperty id="duration1" type="long"/>
+                <flowable:formProperty id="speaker1" variable="SpeakerName" writable="false" />
+            </extensionElements>
+        </userTask>
+
+        <sequenceFlow id="flow2" sourceRef="taskform1" targetRef="taskform2" />
+
+        <userTask id="taskform2" name ="usertask2">
+            <extensionElements>
+                <flowable:formProperty id="room2" />
+                <flowable:formProperty id="duration2" type="long"/>
+                <flowable:formProperty id="speaker2" variable="SpeakerName" writable="false" />
+            </extensionElements>
+        </userTask>
+
+        <sequenceFlow id="flow3" sourceRef="taskform2" targetRef="end" />
+
+        <endEvent id="end" />
+
+    </process>
+</definitions>
