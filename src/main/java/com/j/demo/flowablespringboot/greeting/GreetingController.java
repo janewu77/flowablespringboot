@@ -1,5 +1,6 @@
 package com.j.demo.flowablespringboot.greeting;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 
 
+@Api(tags = "可用性检查测试接口", description = "Greeting，检查基本rest接口是否正常")
 @RestController
 public class GreetingController {
 

@@ -1,5 +1,8 @@
 package com.j.demo.flowablespringboot.hello;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -17,6 +20,7 @@ import java.util.Map;
  *
  */
 
+@Api(tags = "Simple process", description = "demo: flowable:expression")
 @RestController
 public class HelloController {
 
@@ -28,8 +32,12 @@ public class HelloController {
 
 
     //    @GetMapping("/hello")
+    @ApiOperation("演示hello")
+//    @ApiImplicitParam(value="名字")
     @RequestMapping(value="/hello", method= RequestMethod.GET)
-    public Map<String,Object> startProcessInstance(@RequestParam(value = "name", defaultValue = "World") String name) {
+    public Map<String,Object> startProcessInstance(
+            @RequestParam(value = "name", defaultValue = "World") String name
+    ) {
 
         ProcessDefinition processDefinition = repositoryService.
                 createProcessDefinitionQuery().
