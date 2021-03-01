@@ -7,8 +7,6 @@ import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricActivityInstance;
-import org.flowable.engine.repository.Deployment;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,27 +48,9 @@ public class FlowablespringbootApplication {
                 System.out.println("Number of process definitions : "
                         + repositoryService.createProcessDefinitionQuery().count());
 
-//                System.out.println("Number of tasks : " + taskService.createTaskQuery().count());
-                //repositoryService.createProcessDefinitionQuery().processDefinitionKey("oneTaskProcess");
-
                 System.out.println("Number of tasks after process start: "
                         + taskService.createTaskQuery().count());
 
-                //doDemoFlowableExpression();
-
-                //demo：请假流程
-//                doDeploy();
-//                getProcessDef();
-
-//                doAskLeaveByEmployee();
-//                doManagerJob();
-
-//                showHis();
-            }
-
-            void doDemoFlowableExpression(){
-                //测试 flowable:expression="#{printer.printMessage()}"
-                runtimeService.startProcessInstanceByKey("helloProcess");
             }
 
 
@@ -149,23 +129,6 @@ public class FlowablespringbootApplication {
                     System.out.println((i+1) + ") " + tasks.get(i).getName());
                 }
                 return tasks;
-            }
-
-            //发布请假流程
-            void doDeploy(){
-
-                //RepositoryService repositoryService = processEngine.getRepositoryService();
-
-                Deployment deployment = repositoryService.createDeployment()
-                        .addClasspathResource("pre-processes/holiday-request.bpmn20.xml")
-                        .deploy();
-
-                ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                        .deploymentId(deployment.getId())
-                        .singleResult();
-                System.out.println("deploymentID  : " + deployment.getId());
-                System.out.println("Found process definition : " + processDefinition.getName());
-
             }
 
         };
