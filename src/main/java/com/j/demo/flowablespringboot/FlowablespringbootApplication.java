@@ -2,6 +2,7 @@ package com.j.demo.flowablespringboot;
 
 
 import com.j.demo.flowablespringboot.flowable.demo.MyEventListener;
+import com.j.demo.flowablespringboot.flowable.deploy.ProcessDeployService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -31,6 +32,9 @@ public class FlowablespringbootApplication {
     @Autowired
     MyEventListener myEventListener;
 
+    @Autowired
+    ProcessDeployService processDeployService;
+
 
     @Bean
     public CommandLineRunner init(final RepositoryService repositoryService,
@@ -38,13 +42,19 @@ public class FlowablespringbootApplication {
                                   final RuntimeService runtimeService,
                                   final TaskService taskService) {
 
+
         return new CommandLineRunner() {
             @Override
             public void run(String... strings) throws Exception {
 
                 //runtimeService.addEventListener(myEventListener);
 
+                //demo deploy
+                //每次都会重新deploy且生成新版本
+                //processDeployService.demo2DeployFromClasspath();
+                //processDeployService.demo2DeployFromInputStream();
 
+                
                 System.out.println("Number of process definitions : "
                         + repositoryService.createProcessDefinitionQuery().count());
 
