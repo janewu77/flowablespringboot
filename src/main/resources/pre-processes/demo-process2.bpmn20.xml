@@ -8,15 +8,15 @@
              xmlns:flowable="http://flowable.org/bpmn"
              typeLanguage="http://www.w3.org/2001/XMLSchema"
              expressionLanguage="http://www.w3.org/1999/XPath"
-             targetNamespace="demo-autodeploy">
+             targetNamespace="demo">
 
-<!--deploy name: "SpringBootAutoDeployment"-->
-<!--deploy category : null-->
-<!--definition category: demo-autodeploy -->
-<!--definition documentation: documentation -->
+    <!--deploy name: "deployFromClasspathN"-->
+    <!--deploy category : "deployFromClasspathC"-->
+    <!--definition category: demo -->
+    <!--definition documentation: "deploy from classpath documentation" -->
 
-<process id="oneTaskProcess" name="The One Task Process(autodeploy-v1.2)" >
-    <documentation>auto-deploy demo process</documentation>
+<process id="DemoProcess2" name="The Demo Process2(deploy from classpath-v1.6)" >
+    <documentation>deploy from classpath documentation</documentation>
     <startEvent id="theStart" />
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="theTask" />
     <userTask id="theTask" name="my task" flowable:assignee="kermit"/>
