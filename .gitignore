@@ -1,4 +1,10 @@
+### IntelliJ IDEA ###
 .idea
+*.iws
+*.iml
+*.ipr
+
+
 target
 .gradle
 # Compiled class file
