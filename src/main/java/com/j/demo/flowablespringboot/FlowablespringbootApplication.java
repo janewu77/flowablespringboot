@@ -2,14 +2,12 @@ package com.j.demo.flowablespringboot;
 
 
 import com.j.demo.flowablespringboot.flowable.demo.MyEventListener;
-import com.j.demo.flowablespringboot.flowable.deploy.ProcessDeployService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -32,8 +30,6 @@ public class FlowablespringbootApplication {
     @Autowired
     MyEventListener myEventListener;
 
-    @Autowired
-    ProcessDeployService processDeployService;
 
 
     @Bean
@@ -112,34 +108,34 @@ public class FlowablespringbootApplication {
             }
 
             //demo:执行任务
-            void doManagerJob(){
-                List<Task> tasks = queryManagerTasks();
+//            void doManagerJob(){
+//                List<Task> tasks = queryManagerTasks();
+//
+//                Scanner scanner= new Scanner(System.in);
+//                System.out.println("Which task would you like to complete?");
+//                int taskIndex = Integer.valueOf(scanner.nextLine());
+//
+//                Task task = tasks.get(taskIndex - 1);
+//                Map<String, Object> processVariables = taskService.getVariables(task.getId());
+//                System.out.println(processVariables.get("employee") + " wants " +
+//                        processVariables.get("nrOfHolidays") + " of holidays. Do you approve this?(y/n)");
+//
+//                boolean approved = scanner.nextLine().toLowerCase().equals("y");
+//                Map variables = new HashMap<String, Object>();
+//                variables.put("approved", approved);
+//                taskService.complete(task.getId(), variables);
+//            }
 
-                Scanner scanner= new Scanner(System.in);
-                System.out.println("Which task would you like to complete?");
-                int taskIndex = Integer.valueOf(scanner.nextLine());
-
-                Task task = tasks.get(taskIndex - 1);
-                Map<String, Object> processVariables = taskService.getVariables(task.getId());
-                System.out.println(processVariables.get("employee") + " wants " +
-                        processVariables.get("nrOfHolidays") + " of holidays. Do you approve this?(y/n)");
-
-                boolean approved = scanner.nextLine().toLowerCase().equals("y");
-                Map variables = new HashMap<String, Object>();
-                variables.put("approved", approved);
-                taskService.complete(task.getId(), variables);
-            }
-
-            //查询某个group的任务
-            List<Task> queryManagerTasks(){
-                //TaskService taskService = processEngine.getTaskService();
-                List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("managers").list();
-                System.out.println("You(managers) have " + tasks.size() + " tasks:");
-                for (int i=0; i<tasks.size(); i++) {
-                    System.out.println((i+1) + ") " + tasks.get(i).getName());
-                }
-                return tasks;
-            }
+//            //查询某个group的任务
+//            List<Task> queryManagerTasks(){
+//                //TaskService taskService = processEngine.getTaskService();
+//                List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("managers").list();
+//                System.out.println("You(managers) have " + tasks.size() + " tasks:");
+//                for (int i=0; i<tasks.size(); i++) {
+//                    System.out.println((i+1) + ") " + tasks.get(i).getName());
+//                }
+//                return tasks;
+//            }
 
         };
 

@@ -165,5 +165,10 @@ public class FlowableDemoService {
     }
 
 
+    //
+    public ProcessInstance demoStartProcess_DemoFormProcess() {
+        String Demo_FormProcessKey = "DemoFormProcess";
+        return flowableService.startProcess(Demo_FormProcessKey);
+    }
 
 }

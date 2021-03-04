@@ -2,6 +2,8 @@ package com.j.demo.flowablespringboot.flowable;
 
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.engine.*;
+import org.flowable.engine.form.FormProperty;
+import org.flowable.engine.form.TaskFormData;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -36,6 +38,30 @@ public class FlowableService {
 
     @Autowired
     HistoryService historyService;
+
+
+    //取得starter节点上的form信息(获取用于显示表单的参数)
+    public List<FormProperty> fetchForm_Starter(String ProcessKey) {
+
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionKey(ProcessKey).latestVersion()
+                .singleResult();
+
+        //表单属性列表
+        List<FormProperty> propertyList = formService.getStartFormData(processDefinition.getId()).getFormProperties();
+        System.out.println("startFormData.getFormProperties().size:" + propertyList.size());
+
+        //runtimeService.getStartFormModel()
+        return propertyList;
+    }
+
+    public List<FormProperty> fetchForm_Task(String taskId) {
+        TaskFormData taskFormData = formService.getTaskFormData(taskId);
+
+        System.out.println("taskId:" + taskId);
+        System.out.println("taskFormData.getFormProperties():" + taskFormData.getFormProperties().size());
+        return taskFormData.getFormProperties();
+    }
 
 
     //取得本流程的活跃instance的所有任务（带变量）
