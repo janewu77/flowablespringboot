@@ -8,10 +8,10 @@
              xmlns:flowable="http://flowable.org/bpmn"
              typeLanguage="http://www.w3.org/2001/XMLSchema"
              expressionLanguage="http://www.w3.org/1999/XPath"
-             targetNamespace="http://www.flowable.org/processdef">
+             targetNamespace="demo">
 
-    <process id="formProcess" name="测试form test">
-
+    <process id="DemoFormProcess" name="测试form test v1.2">
+        <documentation>demo process: 用于演示form</documentation>
         <startEvent id="start">
 <!--            <extensionElements>-->
 <!--                <flowable:formProperty id="room0" required="true"/>-->
@@ -23,7 +23,7 @@
 
         <sequenceFlow id="flow1" sourceRef="start" targetRef="taskform1" />
 
-        <userTask id="taskform1" name ="usertask1">
+        <userTask id="taskform1" name ="usertask1" >
             <extensionElements>
                 <flowable:formProperty id="room1" />
                 <flowable:formProperty id="duration1" type="long"/>
@@ -33,12 +33,12 @@
 
         <sequenceFlow id="flow2" sourceRef="taskform1" targetRef="taskform2" />
 
-        <userTask id="taskform2" name ="usertask2">
-            <extensionElements>
-                <flowable:formProperty id="room2" />
-                <flowable:formProperty id="duration2" type="long"/>
-                <flowable:formProperty id="speaker2" variable="SpeakerName" writable="false" />
-            </extensionElements>
+        <userTask id="taskform2" name ="usertask2" flowable:formKey="default-approve-form">
+<!--            <extensionElements>-->
+<!--                <flowable:formProperty id="room2" />-->
+<!--                <flowable:formProperty id="duration2" type="long"/>-->
+<!--                <flowable:formProperty id="speaker2" variable="SpeakerName" writable="false" />-->
+<!--            </extensionElements>-->
         </userTask>
 
         <sequenceFlow id="flow3" sourceRef="taskform2" targetRef="end" />

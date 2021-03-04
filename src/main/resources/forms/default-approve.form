@@ -1,0 +1,20 @@
+{
+    "key": "default-approve-form",
+    "name": "default form : examine and approve ",
+    "fields": [
+        {
+            "id": "approve",
+            "name": "approve",
+            "type": "bool",
+            "required": true,
+            "placeholder": "true"
+        },
+        {
+            "id": "remark",
+            "name": "remark",
+            "type": "text",
+            "required": false,
+            "placeholder": "true"
+        }
+    ]
+}
