@@ -23,23 +23,11 @@
 
         <sequenceFlow id="flow1" sourceRef="start" targetRef="taskform1" />
 
-        <userTask id="taskform1" name ="usertask1" >
-            <extensionElements>
-                <flowable:formProperty id="room1" />
-                <flowable:formProperty id="duration1" type="long"/>
-                <flowable:formProperty id="speaker1" variable="SpeakerName" writable="false" />
-            </extensionElements>
-        </userTask>
+        <userTask id="taskform1" name ="usertask1" flowable:formKey="default-approve-form"/>
 
         <sequenceFlow id="flow2" sourceRef="taskform1" targetRef="taskform2" />
 
-        <userTask id="taskform2" name ="usertask2" flowable:formKey="default-approve-form">
-<!--            <extensionElements>-->
-<!--                <flowable:formProperty id="room2" />-->
-<!--                <flowable:formProperty id="duration2" type="long"/>-->
-<!--                <flowable:formProperty id="speaker2" variable="SpeakerName" writable="false" />-->
-<!--            </extensionElements>-->
-        </userTask>
+        <userTask id="taskform2" name ="usertask2" flowable:formKey="default-approve-form"/>
 
         <sequenceFlow id="flow3" sourceRef="taskform2" targetRef="end" />
 

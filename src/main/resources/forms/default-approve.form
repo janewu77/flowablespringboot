@@ -1,20 +1,35 @@
 {
     "key": "default-approve-form",
-    "name": "default form : examine and approve ",
+    "name": "approve-form",
+    "description": "default form : examine and approve.",
     "fields": [
         {
-            "id": "approve",
-            "name": "approve",
-            "type": "bool",
+            "id": "operation",
+            "name": "operation",
+            "type": "text",
             "required": true,
-            "placeholder": "true"
+            "placeholder": "approve"
+        },
+        {
+             "id": "operation_remark",
+             "name": "operation_remark",
+             "type": "text",
+             "required": false,
+             "placeholder": ""
         },
         {
             "id": "remark",
             "name": "remark",
             "type": "text",
             "required": false,
-            "placeholder": "true"
+            "placeholder": ""
+        },
+        {
+            "id": "approve",
+            "name": "approve",
+            "type": "bool",
+            "required": false,
+            "placeholder": true
         }
     ]
 }
