@@ -3,16 +3,21 @@ package com.j.demo.flowablespringboot.flowable;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.engine.*;
 import org.flowable.engine.form.FormProperty;
-import org.flowable.engine.form.TaskFormData;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.form.api.FormDefinition;
+import org.flowable.form.api.FormInfo;
+import org.flowable.form.api.FormRepositoryService;
+import org.flowable.form.model.FormField;
+import org.flowable.form.model.SimpleFormModel;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 
 import java.io.InputStream;
 import java.util.Date;
@@ -32,54 +37,117 @@ public class FlowableService {
     @Autowired
     TaskService taskService;
 
-
     @Autowired
     FormService formService;
 
     @Autowired
     HistoryService historyService;
 
+    @Autowired
+    FormRepositoryService formRepositoryService;
+
 
     //取得starter节点上的form信息(获取用于显示表单的参数)
-    public List<FormProperty> fetchForm_Starter(String ProcessKey) {
+//    public List<FormProperty> fetchFormPropertyList_Starter(String ProcessKey) {
+//
+//        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+//                .processDefinitionKey(ProcessKey).latestVersion()
+//                .singleResult();
+//
+//        //表单属性列表
+//        StartFormData startFormData = formService.getStartFormData(processDefinition.getId());
+//        List<FormProperty> formPropertyList = startFormData.getFormProperties();
+//
+//        _printFormProperty(formPropertyList,"processDefinitionId:"+processDefinition.getId());
+//
+//        //runtimeService.getStartFormModel()
+//
+//        return formPropertyList;
+//    }
 
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                .processDefinitionKey(ProcessKey).latestVersion()
+//    public List<FormProperty> fetchFormPropertyList_Task(String taskId) {
+//
+//        try{
+//            TaskFormData taskFormData = formService.getTaskFormData(taskId);
+//            List<FormProperty> formPropertyList = taskFormData.getFormProperties();
+//
+//            _printFormProperty(formPropertyList,"taskid:"+taskId);
+//            return formPropertyList;
+////
+//        }catch (FlowableObjectNotFoundException e) {
+//
+//        }
+//        return new ArrayList<FormProperty>();
+//    }
+
+
+    //完成某项任务
+    public void doCompleteTask(String taskId, Map<String, Object> variables){
+
+        //取得task
+        Task task = fetchTaskFromRuntime(taskId);
+
+        //取得表单定义
+        FormDefinition formDefinition = null;
+//        try {
+        formDefinition = formRepositoryService.createFormDefinitionQuery()
+                .formDefinitionKey(task.getFormKey())
+                .latestVersion()
                 .singleResult();
+//        }catch(){
+//
+//        }
 
-        //表单属性列表
-        List<FormProperty> propertyList = formService.getStartFormData(processDefinition.getId()).getFormProperties();
-        System.out.println("startFormData.getFormProperties().size:" + propertyList.size());
+        //处理 variables
+        //存task VariableLocal
+        for(String key: variables.keySet()){
+            String value = variables.get(key).toString();
+            taskService.setVariableLocal(taskId,key,value);
+        }
 
-        //runtimeService.getStartFormModel()
-        return propertyList;
+//        formService.saveFormData(taskId,variables);
+
+//        if(formDefinition == null){
+//            taskService.complete(taskId,variables);
+//        }else {
+
+        //complete时，只接收formDefinition内定义的数据
+        //当require不存时，会抛出exception
+        taskService.completeTaskWithForm(taskId, formDefinition.getId(), null, variables);
+
+//        }
+
     }
 
-    public List<FormProperty> fetchForm_Task(String taskId) {
-        TaskFormData taskFormData = formService.getTaskFormData(taskId);
-
-        System.out.println("taskId:" + taskId);
-        System.out.println("taskFormData.getFormProperties():" + taskFormData.getFormProperties().size());
-        return taskFormData.getFormProperties();
+    //显示task form表单（且带出已有数据）
+    public FormInfo fetchForm4Task(String taskId){
+        //form
+        try {
+            System.out.println("taskService.getTaskFormModel(taskId)");
+            FormInfo formInfo = taskService.getTaskFormModel(taskId);
+            _print(formInfo);
+            return formInfo;
+        }catch(FlowableObjectNotFoundException e){
+            //没有设定时 flowable:formKey="default-approve-form"
+            System.out.println("");
+            System.out.println("[error]===FlowableObjectNotFoundException:taskService.getTaskFormModel(taskId);" );
+            System.out.println("");
+            throw e;
+        }
     }
 
 
-    //取得本流程的活跃instance的所有任务（带变量）
-    public void fecthTaskListFromHistory(String ProcessKey){
+    //取得本流程的活跃instance的所有任务（不带变量）
+    public List<HistoricTaskInstance> fecthTaskListFromHistory(String ProcessKey){
 
         List<HistoricTaskInstance> tasks = historyService.createHistoricTaskInstanceQuery()
-                .includeProcessVariables()
-                .includeTaskLocalVariables()
+//                .includeProcessVariables()
+//                .includeTaskLocalVariables()
                 .processUnfinished()
                 .unfinished() //task unfinished
                 .processDefinitionKey(ProcessKey).list();
 
-        //System.out.println("==="+ProcessKey+" tasks.size()" + tasks.size() );
-        for(HistoricTaskInstance task:tasks){
-            System.out.println("=== task.getId()" + task.getId() );
-            System.out.println("=== task.getName()" + task.getName() );
-            //_print(task);
-        }
+        return tasks;
     }
 
     public Task fetchTaskFromRuntime(String taskId){
@@ -104,12 +172,18 @@ public class FlowableService {
 
         _print(historicTaskInstance);
 
+        //variables(history)
         fetchTaskHistoricVariables(historicTaskInstance);
-
+        //varibales(runtime)
         fetchTaskRuntimeVariables(historicTaskInstance);
+
+        //form
+        fetchForm4Task(taskId);
+
 
         return historicTaskInstance;
     }
+
 
     private void fetchTaskHistoricVariables(TaskInfo task){
         System.out.println("-------HistoricVariable.begin------");
@@ -131,7 +205,6 @@ public class FlowableService {
                 .list();
         _print(varList,"processInstanceId");
         System.out.println("-------HistoricVariable.end------");
-
     }
 
 
@@ -161,7 +234,7 @@ public class FlowableService {
     }
 
 
-    //启动一个流程（用form)
+    //启动一个流程
     public ProcessInstance startProcess(String ProcessKey){
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(ProcessKey);
         _print(processInstance);
@@ -208,7 +281,6 @@ public class FlowableService {
     }
 
 
-
     //for debug
     private void _print(Deployment deployment){
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
@@ -234,6 +306,8 @@ public class FlowableService {
         System.out.println("===task.getAssignee():"+  task.getAssignee());
         System.out.println("===task.getExecutionId():"+  task.getExecutionId());
         System.out.println("===task.getTaskDefinitionKey():"+  task.getTaskDefinitionKey());
+        System.out.println("===task.getFormKey():"+  task.getFormKey());
+
         //System.out.println("===task.getOwner():"+  task.get());
 
         System.out.println("-------h.begin------");
@@ -267,7 +341,7 @@ public class FlowableService {
         System.out.println("===["+name+"].HistoricVariableInstance.varList.size():" + varList.size());
         for (HistoricVariableInstance var : varList) {
 //            System.out.println("   HistoricVariableInstance var.getId()" + var.getId());
-            System.out.println("   var.getVariableName()" + var.getVariableName());
+            System.out.println("   var.getVariableName()" + var.getVariableName()+":"+var.getValue());
 //            System.out.println("   HistoricVariableInstance var.getValue()" + var.getValue());
 //            System.out.println("   HistoricVariableInstance var.getId()" + var.getId());
         }
@@ -286,37 +360,58 @@ public class FlowableService {
         System.out.println("");
     }
 
+    public void _printFormProperty(List<FormProperty> formPropertyList, String name){
 
-//        try {
-//            //task  form data
-//            TaskFormData taskFormData = formService.getTaskFormData(task.getId());
-//            List<FormProperty> formPropertyList = taskFormData.getFormProperties();
-//            for (FormProperty p : formPropertyList) {
-//                System.out.println("=== p.getId():" + p.getId());
-//                System.out.println("=== p.getType():" + p.getType());
-//                System.out.println("=== p.getName():" + p.getName());
-//                System.out.println("=== p.getValue():" + p.getValue());
-//            }
-//            System.out.println("===task.formPropertyList.size():"+formPropertyList.size() );
-//        }catch (FlowableObjectNotFoundException e){
-//            System.out.println("===[1] FlowableObjectNotFoundException:task.formPropertyList");
-//        }
+        System.out.println("===["+name+"]formPropertyList.size():"+formPropertyList.size() );
+        for (FormProperty p : formPropertyList) {
+            System.out.println("=== p.getId():" + p.getId());
+            System.out.println("=== p.getType():" + p.getType());
+            System.out.println("=== p.getName():" + p.getName());
+            System.out.println("=== p.getValue():" + p.getValue());
 
-    //task form model
-//        FormInfo formInfo = taskService.getTaskFormModel(taskId);
-//        System.out.println("===task:formInfo.getId() "+formInfo.getId() );
-//        System.out.println("===task:formInfo.getName() "+formInfo.getName() );
-//        System.out.println("===task:formInfo.getDescription() "+formInfo.getDescription() );
-//        System.out.println("===task:formInfo.getKey() "+formInfo.getKey() );
-//        System.out.println("===task:formInfo.getVersion() "+formInfo.getVersion() );
+            System.out.println("=== p.isRequired():" + p.isRequired());
+            System.out.println("=== p.isWritable():" + p.isWritable());
+            System.out.println("=== p.isReadable():" + p.isReadable());
+            System.out.println("");
+
+        }
+        System.out.println("===["+name+"]end");
+        System.out.println("");
+        System.out.println("");
+    }
+
+    private void _print(FormInfo formInfo){
+        System.out.println("===formInfo.getId() "+formInfo.getId() );
+        System.out.println("===formInfo.getName() "+formInfo.getName() );
+        System.out.println("===formInfo.getDescription() "+formInfo.getDescription() );
+        System.out.println("===formInfo.getKey() "+formInfo.getKey() );
+        System.out.println("===formInfo.getVersion() "+formInfo.getVersion() );
+
 //        FormModel formModel = formInfo.getFormModel();
+        SimpleFormModel formModel = (SimpleFormModel)formInfo.getFormModel();
+        //System.out.println("formModel:"+formModel);
+        Map<String, FormField> fieldsMap = formModel.allFieldsAsMap();
+
+        System.out.println("===formModel.getName() "+formModel.getName() );
+        System.out.println("===formModel.getVersion() "+formModel.getVersion() );
+        System.out.println("===formModel.getKey() "+formModel.getKey() );
+        System.out.println("===formModel.getDescription() "+formModel.getDescription() );
+        System.out.println("===formModel.getClass() "+formModel.getClass() );
 
 
+        for(String k : fieldsMap.keySet()){
+            FormField field = fieldsMap.get(k);
+            System.out.println("formModel.field.getId()=" + field.getId());
+            System.out.println("formModel.field.getName()=" + field.getName());
+            System.out.println("formModel.field.getType()=" + field.getType());
+            System.out.println("formModel.field.getValue()=" + field.getValue());
 
-//        Integer random = (Integer) taskService.getVariable(taskId,"random");
-//        System.out.println("===random:"+random );
-//
-//        Integer X1random = (Integer) taskService.getVariable(taskId,"X1random");
-//        System.out.println("===X1random:"+X1random );
+            System.out.println("formModel.field.getPlaceholder()=" + field.getPlaceholder());
+            //field.getParams()
+            // System.out.println("formModel.field.getValue()=" + field.getValue());
+
+        }
+
+    }
 
 }
