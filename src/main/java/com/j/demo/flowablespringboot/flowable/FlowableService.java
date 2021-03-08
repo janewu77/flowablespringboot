@@ -2,15 +2,12 @@ package com.j.demo.flowablespringboot.flowable;
 
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.engine.*;
-import org.flowable.engine.form.FormProperty;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.form.api.FormDefinition;
 import org.flowable.form.api.FormInfo;
 import org.flowable.form.api.FormRepositoryService;
-import org.flowable.form.model.FormField;
-import org.flowable.form.model.SimpleFormModel;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -125,7 +122,7 @@ public class FlowableService {
         try {
             System.out.println("taskService.getTaskFormModel(taskId)");
             FormInfo formInfo = taskService.getTaskFormModel(taskId);
-            _print(formInfo);
+            FlowUtil.print(formInfo);
             return formInfo;
         }catch(FlowableObjectNotFoundException e){
             //没有设定时 flowable:formKey="default-approve-form"
@@ -170,7 +167,7 @@ public class FlowableService {
                 .includeIdentityLinks()
                 .singleResult();
 
-        _print(historicTaskInstance);
+        FlowUtil.print(historicTaskInstance);
 
         //variables(history)
         fetchTaskHistoricVariables(historicTaskInstance);
@@ -191,20 +188,21 @@ public class FlowableService {
                 .taskId(task.getId())
                 .orderByVariableName().asc()
                 .list();
-        _print(varList_task,"taskId");
+        FlowUtil.print(varList_task,"taskId");
 
         List<HistoricVariableInstance> varList_execute = historyService.createHistoricVariableInstanceQuery()
                 .executionId(task.getExecutionId())
                 .orderByVariableName().asc()
                 .list();
-        _print(varList_execute,"executionId");
+        FlowUtil.print(varList_execute,"executionId");
 
         List<HistoricVariableInstance> varList = historyService.createHistoricVariableInstanceQuery()
                 .processInstanceId(task.getProcessInstanceId())
                 .orderByVariableName().asc()
                 .list();
-        _print(varList,"processInstanceId");
+        FlowUtil.print(varList,"processInstanceId");
         System.out.println("-------HistoricVariable.end------");
+
     }
 
 
@@ -214,16 +212,16 @@ public class FlowableService {
             System.out.println("-------RuntimeVariables.begin------");
 
             Map<String, Object> varList_task = taskService.getVariables(task.getId());
-            _print(varList_task,"taskService.getVariables.taskId");
+            FlowUtil.print(varList_task,"taskService.getVariables.taskId");
 
             Map<String, Object> varList_task_local = taskService.getVariablesLocal(task.getId());
-            _print(varList_task_local,"taskService.getVariablesLocal.taskId");
+            FlowUtil.print(varList_task_local,"taskService.getVariablesLocal.taskId");
 
             Map<String, Object> varList_execution = runtimeService.getVariables(task.getExecutionId());
-            _print(varList_execution,"runtimeService.getVariables.ExecutionId");
+            FlowUtil.print(varList_execution,"runtimeService.getVariables.ExecutionId");
 
             Map<String, Object> varList_execution_local = runtimeService.getVariablesLocal(task.getExecutionId());
-            _print(varList_execution_local,"runtimeService.getVariablesLocal.ExecutionId");
+            FlowUtil.print(varList_execution_local,"runtimeService.getVariablesLocal.ExecutionId");
 
 
         }catch (FlowableObjectNotFoundException e){
@@ -237,7 +235,7 @@ public class FlowableService {
     //启动一个流程
     public ProcessInstance startProcess(String ProcessKey){
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(ProcessKey);
-        _print(processInstance);
+        FlowUtil.print(processInstance);
         return processInstance;
     }
 
@@ -251,7 +249,10 @@ public class FlowableService {
                 .addInputStream(rname,inputStream)//
                 .deploy();
 
-        _print(deployment);
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .deploymentId(deployment.getId())
+                .singleResult();
+        FlowUtil.print(deployment,processDefinition);
         return deployment;
     }
 
@@ -263,7 +264,10 @@ public class FlowableService {
                 .addClasspathResource(filename)
                 .deploy();
 
-        _print(deployment);
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .deploymentId(deployment.getId())
+                .singleResult();
+        FlowUtil.print(deployment,processDefinition);
         return deployment;
     }
 
@@ -276,142 +280,12 @@ public class FlowableService {
                 .addClasspathResource(filename)
                 .deploy();
 
-        _print(deployment);
-        return deployment;
-    }
-
-
-    //for debug
-    private void _print(Deployment deployment){
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                 .deploymentId(deployment.getId())
                 .singleResult();
-        System.out.println("deploymentID  : " + deployment.getId());
-        System.out.println("deploymentname : " + deployment.getName());
-        System.out.println("Found process definition : " + processDefinition.getName());
-        System.out.println("Found process getVersion : " + processDefinition.getVersion());
+        FlowUtil.print(deployment,processDefinition);
+        return deployment;
     }
 
-    private void _print(ProcessInstance processInstance){
-        System.out.println("processInstance.getId():"+processInstance.getId());
-        System.out.println("processInstance.getName():"+processInstance.getName());
-        System.out.println("processInstance.getProcessVariables().size():"+processInstance.getProcessVariables().size());
-    }
-
-    private void _print(HistoricTaskInstance task){
-
-        System.out.println("===task info begin ID:["+task.getId()+"]=======");
-        System.out.println("===task.getName():"+  task.getName());
-        System.out.println("===task.getOwner():"+  task.getOwner());
-        System.out.println("===task.getAssignee():"+  task.getAssignee());
-        System.out.println("===task.getExecutionId():"+  task.getExecutionId());
-        System.out.println("===task.getTaskDefinitionKey():"+  task.getTaskDefinitionKey());
-        System.out.println("===task.getFormKey():"+  task.getFormKey());
-
-        //System.out.println("===task.getOwner():"+  task.get());
-
-        System.out.println("-------h.begin------");
-        System.out.println("===task.h.getClaimTime():"+  task.getClaimTime());
-        System.out.println("===task.h.getEndTime():"+  task.getEndTime());
-        System.out.println("===task.h.getWorkTimeInMillis():"+  task.getWorkTimeInMillis());
-        System.out.println("===task.h.getDurationInMillis():"+  task.getDurationInMillis());
-        System.out.println("===task.h.getDeleteReason():"+  task.getDeleteReason());
-        System.out.println("-------h.end------");
-
-        //Process Variables
-        Map<String, Object> taskVariables = task.getProcessVariables();
-        System.out.println("===task.getProcessVariables().size():"+ taskVariables.size());
-        for(String k: taskVariables.keySet()){
-            System.out.println("   task.ProcessVariables:"+k+":"+taskVariables.get(k));
-        }
-
-        //task local variable
-        Map<String, Object> taskLocalVariables = task.getTaskLocalVariables();
-        System.out.println("===task.taskLocalVariables.size():"+taskLocalVariables.size());
-        for(String k: taskLocalVariables.keySet()){
-            System.out.println("   TaskLocalVariables:"+k+":"+taskLocalVariables.get(k));
-        }
-
-        System.out.println("===task info End ==========");
-        System.out.println("============================");
-    }
-
-    private void _print(List<HistoricVariableInstance> varList, String name){
-
-        System.out.println("===["+name+"].HistoricVariableInstance.varList.size():" + varList.size());
-        for (HistoricVariableInstance var : varList) {
-//            System.out.println("   HistoricVariableInstance var.getId()" + var.getId());
-            System.out.println("   var.getVariableName()" + var.getVariableName()+":"+var.getValue());
-//            System.out.println("   HistoricVariableInstance var.getValue()" + var.getValue());
-//            System.out.println("   HistoricVariableInstance var.getId()" + var.getId());
-        }
-        System.out.println("===["+name+"]End");
-        System.out.println("");
-    }
-
-    private void _print(Map<String, Object> vars,String name){
-        System.out.println("===["+name+"].HistoricVariableInstance.varList.size():" + vars.size());
-
-        for (String k : vars.keySet()) {
-            System.out.println("   var:" + k + ":" + vars.get(k));
-        }
-
-        System.out.println("===["+name+"]End");
-        System.out.println("");
-    }
-
-    public void _printFormProperty(List<FormProperty> formPropertyList, String name){
-
-        System.out.println("===["+name+"]formPropertyList.size():"+formPropertyList.size() );
-        for (FormProperty p : formPropertyList) {
-            System.out.println("=== p.getId():" + p.getId());
-            System.out.println("=== p.getType():" + p.getType());
-            System.out.println("=== p.getName():" + p.getName());
-            System.out.println("=== p.getValue():" + p.getValue());
-
-            System.out.println("=== p.isRequired():" + p.isRequired());
-            System.out.println("=== p.isWritable():" + p.isWritable());
-            System.out.println("=== p.isReadable():" + p.isReadable());
-            System.out.println("");
-
-        }
-        System.out.println("===["+name+"]end");
-        System.out.println("");
-        System.out.println("");
-    }
-
-    private void _print(FormInfo formInfo){
-        System.out.println("===formInfo.getId() "+formInfo.getId() );
-        System.out.println("===formInfo.getName() "+formInfo.getName() );
-        System.out.println("===formInfo.getDescription() "+formInfo.getDescription() );
-        System.out.println("===formInfo.getKey() "+formInfo.getKey() );
-        System.out.println("===formInfo.getVersion() "+formInfo.getVersion() );
-
-//        FormModel formModel = formInfo.getFormModel();
-        SimpleFormModel formModel = (SimpleFormModel)formInfo.getFormModel();
-        //System.out.println("formModel:"+formModel);
-        Map<String, FormField> fieldsMap = formModel.allFieldsAsMap();
-
-        System.out.println("===formModel.getName() "+formModel.getName() );
-        System.out.println("===formModel.getVersion() "+formModel.getVersion() );
-        System.out.println("===formModel.getKey() "+formModel.getKey() );
-        System.out.println("===formModel.getDescription() "+formModel.getDescription() );
-        System.out.println("===formModel.getClass() "+formModel.getClass() );
-
-
-        for(String k : fieldsMap.keySet()){
-            FormField field = fieldsMap.get(k);
-            System.out.println("formModel.field.getId()=" + field.getId());
-            System.out.println("formModel.field.getName()=" + field.getName());
-            System.out.println("formModel.field.getType()=" + field.getType());
-            System.out.println("formModel.field.getValue()=" + field.getValue());
-
-            System.out.println("formModel.field.getPlaceholder()=" + field.getPlaceholder());
-            //field.getParams()
-            // System.out.println("formModel.field.getValue()=" + field.getValue());
-
-        }
-
-    }
 
 }
