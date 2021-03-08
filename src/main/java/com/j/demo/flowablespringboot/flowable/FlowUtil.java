@@ -3,6 +3,7 @@ package com.j.demo.flowablespringboot.flowable;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.task.Attachment;
 import org.flowable.form.api.FormInfo;
 import org.flowable.form.model.FormField;
 import org.flowable.form.model.SimpleFormModel;
@@ -17,7 +18,23 @@ public class FlowUtil {
 
     static boolean isDebug = true;
 
+    static void print(Attachment attachment){
+        if(attachment == null){
+            System.out.println("   attachment not found.");
+            return;
+        }
+        System.out.println("   attachment.getName() = " + attachment.getName());
+        System.out.println("   attachment.getId() = " + attachment.getId());
+        System.out.println("   attachment.getDescription() = " + attachment.getDescription());
+        System.out.println("   attachment.getType() = " + attachment.getType());
+        System.out.println("   attachment.getUrl() = " + attachment.getUrl());
+        System.out.println("   attachment.getContentId() = " + attachment.getContentId());
 
+        System.out.println("   attachment.getUserId() = " + attachment.getUserId());
+
+        System.out.println("   attachment.END");
+
+    }
     static void print(List<HistoricVariableInstance> varList, String name){
         if(!isDebug) return;
         System.out.println("===["+name+"].HistoricVariableInstance.varList.size():" + varList.size());
@@ -96,6 +113,8 @@ public class FlowUtil {
         for(String k: taskLocalVariables.keySet()){
             System.out.println("   TaskLocalVariables:"+k+":"+taskLocalVariables.get(k));
         }
+
+
 
         System.out.println("===task info End ==========");
         System.out.println("============================");
