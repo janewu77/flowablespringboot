@@ -31,12 +31,12 @@ public class FlowUtil {
         System.out.println("");
     }
 
-    static void print(Map<String, Object> vars,String name){
+    public static void print(Map<String, Object> vars,String name){
         if(!isDebug) return;
         System.out.println("===["+name+"].HistoricVariableInstance.varList.size():" + vars.size());
 
         for (String k : vars.keySet()) {
-            System.out.println("   var:" + k + ":" + vars.get(k));
+            System.out.println( k + ":" + vars.get(k));
         }
 
         System.out.println("===["+name+"]End");
