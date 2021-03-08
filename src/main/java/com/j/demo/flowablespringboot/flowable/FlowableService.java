@@ -96,6 +96,9 @@ public class FlowableService {
 //        }
 
         //处理 variables
+        //todo:检查variables
+
+
         //存task VariableLocal
         for(String key: variables.keySet()){
             String value = variables.get(key).toString();

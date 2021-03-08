@@ -59,8 +59,14 @@ public class FlowableController {
 
 
     @PostMapping("/completeTask")
-    public void dodemoCompleteTask(@RequestParam(value = "taskId") String taskId) {
-        demoService.demoCompleteTask(taskId);
+    public void doDemoCompleteTask(@RequestParam(value = "taskId") String taskId,
+                                   @RequestParam Map<String,Object> params) {
+
+        params.remove("taskId");
+//        System.out.println("taskId="+taskId);
+//        FlowUtil.print(params,"params");
+
+        flowableService.doCompleteTask(taskId,params);
     }
 
     //
