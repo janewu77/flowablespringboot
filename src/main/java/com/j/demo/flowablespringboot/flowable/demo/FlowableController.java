@@ -10,6 +10,7 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,13 +61,14 @@ public class FlowableController {
 
     @PostMapping("/completeTask")
     public void doDemoCompleteTask(@RequestParam(value = "taskId") String taskId,
-                                   @RequestParam Map<String,Object> params) {
+                                   @RequestParam Map<String,Object> params,
+                                   @RequestParam("file") MultipartFile file) {
 
         params.remove("taskId");
 //        System.out.println("taskId="+taskId);
 //        FlowUtil.print(params,"params");
 
-        flowableService.doCompleteTask(taskId,params);
+        flowableService.doCompleteTask(taskId,params,file);
     }
 
     //

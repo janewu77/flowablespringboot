@@ -5,6 +5,7 @@ import org.flowable.engine.*;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.task.Attachment;
 import org.flowable.form.api.FormDefinition;
 import org.flowable.form.api.FormInfo;
 import org.flowable.form.api.FormRepositoryService;
@@ -14,8 +15,10 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -79,7 +82,8 @@ public class FlowableService {
 
 
     //完成某项任务
-    public void doCompleteTask(String taskId, Map<String, Object> variables){
+    public void doCompleteTask(String taskId, Map<String, Object> variables,
+                               MultipartFile attachFile) {
 
         //取得task
         Task task = fetchTaskFromRuntime(taskId);
@@ -98,11 +102,16 @@ public class FlowableService {
         //处理 variables
         //todo:检查variables
 
+        //处理上传的附件
+        if( attachFile != null) {
+            _saveAttachment(task, attachFile);
+        }
+
 
         //存task VariableLocal
-        for(String key: variables.keySet()){
+        for (String key : variables.keySet()) {
             String value = variables.get(key).toString();
-            taskService.setVariableLocal(taskId,key,value);
+            taskService.setVariableLocal(taskId, key, value);
         }
 
 //        formService.saveFormData(taskId,variables);
@@ -118,6 +127,45 @@ public class FlowableService {
 //        }
 
     }
+
+    //保存附件
+    private String _saveAttachment(Task task, MultipartFile file) {
+        String attachmentId = null;
+
+        if (file.isEmpty()) {
+            return attachmentId;
+        }
+
+        try {
+            InputStream contentInputStream = file.getInputStream();
+
+            // Get the file and save it somewhere
+            //for debug
+//                byte[] bytes = file.getBytes();
+//                Path path = Paths.get("/Users/janewu/1upload.txt");// + file.getOriginalFilename());
+//                Files.write(path, bytes);
+
+            String desc = task.getId() + ".attachementdescripton." + file.getOriginalFilename();
+
+            Attachment attachment = taskService.createAttachment(file.getContentType(),
+                    task.getId(), task.getProcessInstanceId(),
+                    file.getName(), desc,
+                    contentInputStream);
+            //taskService.saveAttachment(attachment);
+
+            //for debug
+            attachmentId = attachment.getId();// attachment.getContentId();
+            System.out.println("===attachmentId:" + attachmentId);
+
+            taskService.setVariableLocal(task.getId(), "sj.attachmentId", attachmentId);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return attachmentId;
+
+    }
+
 
     //显示task form表单（且带出已有数据）
     public FormInfo fetchForm4Task(String taskId){
@@ -156,6 +204,7 @@ public class FlowableService {
                 .includeProcessVariables()
                 .includeTaskLocalVariables()
                 .taskId(taskId).singleResult();
+
         return task;
     }
 
@@ -167,8 +216,10 @@ public class FlowableService {
                 .taskId(taskId)
                 .includeProcessVariables()
                 .includeTaskLocalVariables()
+
                 .includeIdentityLinks()
                 .singleResult();
+
 
         FlowUtil.print(historicTaskInstance);
 
@@ -180,7 +231,13 @@ public class FlowableService {
         //form
         fetchForm4Task(taskId);
 
-
+        //attachment
+        String attachmentId = (String)historicTaskInstance.getTaskLocalVariables().get("sj.attachmentId");
+        if(attachmentId != null){
+            Attachment attachment = taskService.getAttachment(attachmentId);
+            FlowUtil.print(attachment);
+        }
+        
         return historicTaskInstance;
     }
 
@@ -192,6 +249,8 @@ public class FlowableService {
                 .orderByVariableName().asc()
                 .list();
         FlowUtil.print(varList_task,"taskId");
+
+
 
         List<HistoricVariableInstance> varList_execute = historyService.createHistoricVariableInstanceQuery()
                 .executionId(task.getExecutionId())
@@ -205,6 +264,8 @@ public class FlowableService {
                 .list();
         FlowUtil.print(varList,"processInstanceId");
         System.out.println("-------HistoricVariable.end------");
+
+
 
     }
 

@@ -57,7 +57,7 @@ public class FlowableDemoService {
         variables.put("remark", task.getName()+".remark.value");
         variables.put("approve",true);
 
-        flowableService.doCompleteTask(taskId,variables);
+        flowableService.doCompleteTask(taskId,variables,null);
     }
 
 
