@@ -40,25 +40,10 @@ public class FlowableDemoService {
     FormRepositoryService formRepositoryService;
 
 
-
     public void demoCompleteTask(String taskId){
         taskService.complete(taskId);
     }
 
-
-    public void demoCompleteTaskWithForm(String taskId){
-
-        Task task = flowableService.fetchTaskFromRuntime(taskId);
-
-        Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put("other",  task.getName()+".other.value");  //实际上没有保存
-        variables.put("operation", task.getName()+".operation.value");//required
-        variables.put("operation_remark", task.getName()+".operation_remark.value");
-        variables.put("remark", task.getName()+".remark.value");
-        variables.put("approve",true);
-
-        flowableService.doCompleteTask(taskId,variables,null);
-    }
 
 
     //演示：

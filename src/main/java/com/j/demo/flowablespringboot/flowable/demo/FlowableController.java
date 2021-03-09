@@ -61,22 +61,25 @@ public class FlowableController {
 
     @PostMapping("/completeTask")
     public void doDemoCompleteTask(@RequestParam(value = "taskId") String taskId,
-                                   @RequestParam Map<String,Object> params,
-                                   @RequestParam("file") MultipartFile file) {
-
-        params.remove("taskId");
+                                   @RequestParam Map<String,Object> params) {
+//
+//        params.remove("taskId");
 //        System.out.println("taskId="+taskId);
 //        FlowUtil.print(params,"params");
+        flowableService.doCompleteTask(taskId,params);
+    }
 
+    @PostMapping("/completeTaskWithUploadFile")
+    public void doDemoCompleteTask(@RequestParam(value = "taskId") String taskId,
+                                   @RequestParam Map<String,Object> params,
+                                   @RequestParam("file") MultipartFile file) {
+//
+//        params.remove("taskId");
+//        System.out.println("taskId="+taskId);
+//        FlowUtil.print(params,"params");
         flowableService.doCompleteTask(taskId,params,file);
     }
 
-    //
-    @PostMapping("/completeTaskWithForm")
-    public void doCompleteTaskWithFrom(@RequestParam(value = "taskId") String taskId,
-                                       @RequestParam(value = "no") String no) {
-            demoService.demoCompleteTaskWithForm(taskId);
-    }
 
     @PostMapping("/startProcess")
     public Map<String,Object> startProcess() {

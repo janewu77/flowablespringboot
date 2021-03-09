@@ -82,8 +82,7 @@ public class FlowableService {
 
 
     //完成某项任务
-    public void doCompleteTask(String taskId, Map<String, Object> variables,
-                               MultipartFile attachFile) {
+    public Task doCompleteTask(String taskId, Map<String, Object> variables) {
 
         //取得task
         Task task = fetchTaskFromRuntime(taskId);
@@ -102,12 +101,6 @@ public class FlowableService {
         //处理 variables
         //todo:检查variables
 
-        //处理上传的附件
-        if( attachFile != null) {
-            _saveAttachment(task, attachFile);
-        }
-
-
         //存task VariableLocal
         for (String key : variables.keySet()) {
             String value = variables.get(key).toString();
@@ -124,8 +117,23 @@ public class FlowableService {
         //当require不存时，会抛出exception
         taskService.completeTaskWithForm(taskId, formDefinition.getId(), null, variables);
 
-//        }
+        return task;
+    }
 
+    //完成某项任务(带上传的附件）
+    public Task doCompleteTask(String taskId,
+                               Map<String, Object> variables,
+                               MultipartFile attachFile) {
+
+        Task task = doCompleteTask(taskId,variables);
+
+        //处理上传的附件
+        //MultipartFile attachFile = (MultipartFile)variables.get("UPLOADFILE");
+        if( attachFile == null) {
+            return task;
+        }
+        _saveAttachment(task, attachFile);
+        return task;
     }
 
     //保存附件
@@ -185,7 +193,7 @@ public class FlowableService {
     }
 
 
-    //取得本流程的活跃instance的所有任务（不带变量）
+    //取得本流程的活跃instance的未完成任务（不带变量）
     public List<HistoricTaskInstance> fecthTaskListFromHistory(String ProcessKey){
 
         List<HistoricTaskInstance> tasks = historyService.createHistoricTaskInstanceQuery()
@@ -236,8 +244,16 @@ public class FlowableService {
         if(attachmentId != null){
             Attachment attachment = taskService.getAttachment(attachmentId);
             FlowUtil.print(attachment);
+            //取得上传的内容
+            //InputStream inputStream = contentService.getContentItemData(attachmentId);
+
+            //for debug
+//                byte[] bytes = file.getBytes();
+//                Path path = Paths.get("/Users/janewu/1upload.txt");// + file.getOriginalFilename());
+//                Files.write(path,bytes)
+
         }
-        
+
         return historicTaskInstance;
     }
 
@@ -264,8 +280,6 @@ public class FlowableService {
                 .list();
         FlowUtil.print(varList,"processInstanceId");
         System.out.println("-------HistoricVariable.end------");
-
-
 
     }
 
