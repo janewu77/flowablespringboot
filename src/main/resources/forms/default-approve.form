@@ -25,11 +25,18 @@
             "placeholder": ""
         },
         {
-            "id": "approve",
-            "name": "approve",
-            "type": "bool",
+          "id": "file",
+          "name": "file",
+          "type": "upload",
+          "required": false,
+          "placeholder": ""
+        },
+        {
+            "id": "fileURL",
+            "name": "fileURL",
+            "type": "text",
             "required": false,
-            "placeholder": true
-        }
+            "placeholder": ""
+        },
     ]
 }
