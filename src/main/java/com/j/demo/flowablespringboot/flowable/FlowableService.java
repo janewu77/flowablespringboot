@@ -209,10 +209,9 @@ public class FlowableService {
     public Task fetchTaskFromRuntime(String taskId){
         System.out.println("===task found from runtime(taskService):"+taskId );
         Task task = taskService.createTaskQuery()
-                .includeProcessVariables()
-                .includeTaskLocalVariables()
+//                .includeProcessVariables()
+//                .includeTaskLocalVariables()
                 .taskId(taskId).singleResult();
-
         return task;
     }
 
