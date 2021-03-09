@@ -1,7 +1,7 @@
 {
-    "key": "default-approve-form",
-    "name": "approve-form",
-    "description": "default form : examine and approve. ",
+    "key": "default-approve-form-attachment",
+    "name": "approve-form-attachment",
+    "description": "default form : examine and approve.(with attachment)",
     "fields": [
         {
             "id": "operation",
@@ -20,6 +20,20 @@
         {
             "id": "remark",
             "name": "remark",
+            "type": "text",
+            "required": false,
+            "placeholder": ""
+        },
+        {
+          "id": "file",
+          "name": "file",
+          "type": "upload",
+          "required": false,
+          "placeholder": ""
+        },
+        {
+            "id": "fileURL",
+            "name": "fileURL",
             "type": "text",
             "required": false,
             "placeholder": ""
