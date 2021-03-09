@@ -1,7 +1,7 @@
 {
     "key": "default-approve-form",
     "name": "approve-form",
-    "description": "default form : examine and approve. ",
+    "description": "default form : examine and approve.默认表单1 ",
     "fields": [
         {
             "id": "operation",
