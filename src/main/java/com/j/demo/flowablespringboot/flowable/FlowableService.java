@@ -8,7 +8,6 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.task.Attachment;
 import org.flowable.form.api.FormDefinition;
 import org.flowable.form.api.FormInfo;
-import org.flowable.form.api.FormRepositoryService;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -38,13 +37,16 @@ public class FlowableService {
     TaskService taskService;
 
     @Autowired
-    FormService formService;
-
-    @Autowired
     HistoryService historyService;
 
+//    @Autowired
+//    org.flowable.engine.FormService engineFormService;
+
     @Autowired
-    FormRepositoryService formRepositoryService;
+    org.flowable.form.api.FormService formApiFormService;
+
+    @Autowired
+    org.flowable.form.api.FormRepositoryService formRepositoryService;
 
 
     //取得starter节点上的form信息(获取用于显示表单的参数)
@@ -174,6 +176,13 @@ public class FlowableService {
 
     }
 
+    public  List<FormDefinition> fetchFormDefinitionList(){
+        List<FormDefinition> formDefinitions = formRepositoryService.createFormDefinitionQuery()
+                .latestVersion()
+                .list();
+        
+        return formDefinitions;
+    }
 
     //显示task form表单（且带出已有数据）
     public FormInfo fetchForm4Task(String taskId){

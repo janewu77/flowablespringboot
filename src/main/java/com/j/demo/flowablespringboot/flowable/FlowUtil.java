@@ -4,6 +4,7 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.task.Attachment;
+import org.flowable.form.api.FormDefinition;
 import org.flowable.form.api.FormInfo;
 import org.flowable.form.model.FormField;
 import org.flowable.form.model.SimpleFormModel;
@@ -18,6 +19,20 @@ public class FlowUtil {
 
     static boolean isDebug = true;
 
+    public static void print(FormDefinition formDefinition){
+
+        System.out.println("   attachment.getId() = " + formDefinition.getId());
+        System.out.println("   attachment.getName() = " + formDefinition.getName());
+        System.out.println("   attachment.getKey() = " + formDefinition.getKey());
+        System.out.println("   attachment.getVersion() = " + formDefinition.getVersion());
+        System.out.println("   attachment.getDescription() = " + formDefinition.getDescription());
+        System.out.println("   attachment.getCategory() = " + formDefinition.getCategory());
+        System.out.println("   attachment.getClass() = " + formDefinition.getClass());
+        System.out.println("   attachment.getDeploymentId() = " + formDefinition.getDeploymentId());
+        System.out.println("   attachment.getResourceName() = " + formDefinition.getResourceName());
+//        System.out.println("   attachment.getName() = " + formDefinition.getTenantId());
+
+    }
     static void print(Attachment attachment){
         if(attachment == null){
             System.out.println("   attachment not found.");

@@ -5,6 +5,7 @@ import com.j.demo.flowablespringboot.flowable.FlowableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.form.api.FormDefinition;
 import org.flowable.form.api.FormInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,11 @@ public class FlowableController {
             result.add( "["+task.getId() +"]:"+ task.getName());
         }
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/fetchAllFormDefinition")
+    public List<FormDefinition> getFormDefinitionList(){
+        return flowableService.fetchFormDefinitionList();
     }
 
     @PostMapping("/showTaskForm")
