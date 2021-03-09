@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 
+//@Sl4j
 @Component
 public class FlowableService {
 
@@ -39,8 +40,8 @@ public class FlowableService {
     @Autowired
     HistoryService historyService;
 
-//    @Autowired
-//    org.flowable.engine.FormService engineFormService;
+    @Autowired
+    org.flowable.engine.FormService engineFormService;
 
     @Autowired
     org.flowable.form.api.FormService formApiFormService;
@@ -103,6 +104,18 @@ public class FlowableService {
         //处理 variables
         //todo:检查variables
 
+        //检查 form 中的 variables
+        FormInfo formInfo = fetchForm4Task(taskId);
+        //FormInfo formInfo = taskService.getTaskFormModel(taskId);
+        try {
+            //Throws:org.flowable.common.engine.api.FlowableException
+            formApiFormService.validateFormFields(formInfo, variables);
+        }catch(org.flowable.common.engine.api.FlowableException e){
+            System.out.println("1.org.flowable.common.engine.api.FlowableException:"+e.toString());
+        }
+        //engineFormService.
+
+
         //存task VariableLocal
         for (String key : variables.keySet()) {
             String value = variables.get(key).toString();
@@ -117,7 +130,12 @@ public class FlowableService {
 
         //complete时，只接收formDefinition内定义的数据
         //当require不存时，会抛出exception
-        taskService.completeTaskWithForm(taskId, formDefinition.getId(), null, variables);
+        try {
+            taskService.completeTaskWithForm(taskId, formDefinition.getId(), null, variables);
+        }catch (org.flowable.form.engine.FlowableFormValidationException e){
+            System.out.println("2.org.flowable.form.engine.FlowableFormValidationException:"+e.toString());
+            throw e;
+        }
 
         return task;
     }
@@ -180,7 +198,7 @@ public class FlowableService {
         List<FormDefinition> formDefinitions = formRepositoryService.createFormDefinitionQuery()
                 .latestVersion()
                 .list();
-        
+
         return formDefinitions;
     }
 
